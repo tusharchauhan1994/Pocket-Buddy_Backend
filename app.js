@@ -2,7 +2,7 @@
 const express = require("express"); // Express framework for building APIs
 const mongoose = require("mongoose"); // Mongoose for MongoDB connection and schema management
 const cors = require("cors"); // CORS middleware to allow cross-origin requests
-//git demo
+
 // Create an Express application
 const app = express();
 
