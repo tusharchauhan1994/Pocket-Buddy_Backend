@@ -7,6 +7,6 @@ const foodTypeSchema = new Schema ({
     require: true
   }
 });
-//demo git hub
+
 
 module.exports = mongoose.model('FoodType',foodTypeSchema);
