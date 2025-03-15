@@ -8,5 +8,6 @@ router.post('/addWithFile', locationController.addLocationWithFile);
 router.get('/getLocationByUserId/:userId', locationController.getLocationByUserId);
 router.get("/getRestaurant/:id", locationController.getRestaurantById);
 router.put("/updateRestaurant/:id", locationController.updateRestaurant);
+router.delete("/deleteRestaurant/:id", locationController.deleteRestaurant);
 
 module.exports = router;

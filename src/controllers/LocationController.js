@@ -35,7 +35,22 @@ const getRestaurantById = async (req, res) => {
   }
 };
 
+const deleteRestaurant = async (req, res) => {
+  try {
+    const deletedRestaurant = await locationModel.findByIdAndDelete(req.params.id);
 
+    if (!deletedRestaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
+
+    res.status(200).json({
+      message: "Restaurant deleted successfully",
+      data: deletedRestaurant,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Error while deleting restaurant", err });
+  }
+};
 
 
 const updateRestaurant = async (req, res) => {
@@ -166,4 +181,4 @@ const getAllLocations = async (req, res) => {
   }
 };
 
-module.exports = { addLocation, getAllLocations, addLocationWithFile, getLocationByUserId, updateRestaurant, getRestaurantById,};
+module.exports = { addLocation, getAllLocations, addLocationWithFile, getLocationByUserId, updateRestaurant, getRestaurantById, deleteRestaurant, };
