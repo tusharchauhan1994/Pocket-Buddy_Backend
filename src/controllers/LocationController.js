@@ -23,26 +23,22 @@ const upload = multer({
 }).single("image");
 
 
-const getRestaurantById = async (req,res) => {
-  try{
+const getRestaurantById = async (req, res) => {
+  try {
     const restaurant = await locationModel.findById(req.params.id);
-    if(!restaurant){
-      res.status(404).json({ message: "Restaurant not found" });
-    } else {
-      res.status(200).json({
-        message: "Restaurant found successfully",
-        data: restaurant,
-      });
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
     }
-  }catch (err) {
-    res.status(500).json({ message: "error while fetching restaurant", err: err });
+    res.status(200).json({ data: restaurant });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching restaurant", err });
   }
-}
+};
+
 
 
 
 const updateRestaurant = async (req, res) => {
-  
   try {
     const updatedLocation = await locationModel.findByIdAndUpdate(
       req.params.id,
@@ -54,9 +50,9 @@ const updateRestaurant = async (req, res) => {
       data: updatedLocation,
     });
   } catch (err) {
-    res.status(500).json({ message: "error while update hording", err: err, });
+    res.status(500).json({ message: "Error while updating restaurant", err: err });
   }
-}
+};
 
 // const addLocationWithFile = async (req, res) => {
 //   upload(req, res, (err) => {
@@ -124,9 +120,6 @@ const getLocationByUserId = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-
 
 const addLocation = async (req, res) => {
   try {

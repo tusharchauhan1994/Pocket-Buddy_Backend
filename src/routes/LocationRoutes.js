@@ -6,9 +6,7 @@ router.post("/add", locationController.addLocation);
 router.get("/all", locationController.getAllLocations);
 router.post('/addWithFile', locationController.addLocationWithFile);
 router.get('/getLocationByUserId/:userId', locationController.getLocationByUserId);
-
 router.get("/getRestaurant/:id", locationController.getRestaurantById);
-
 router.put("/updateRestaurant/:id", locationController.updateRestaurant);
 
 module.exports = router;
