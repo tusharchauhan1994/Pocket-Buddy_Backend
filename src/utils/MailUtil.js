@@ -21,7 +21,7 @@ const sendingMail = async(to,subject,text)=>{
   return mailResponse;
 }
 
-//sendingMail("imcatushar1994@gmail.com","Test Mail","this is test mail")
+//sendingMail("imcatushar1994@gmail.com","Welcome to Pocket-Buddy","this is test mail")
 
 module.exports ={ sendingMail };
 
