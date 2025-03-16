@@ -3,6 +3,8 @@ const roleModel = require("../models/RoleModel"); // Import Role Model
 const bcrypt = require("bcrypt");
 const mailUtil = require("../utils/MailUtil");
 
+console.log("User Model:", userModel);
+
 const signup = async (req, res) => {
   try {
     console.log("Received Request Body:", req.body);
@@ -60,24 +62,24 @@ const signup = async (req, res) => {
 
     // ✅ Construct Welcome Email
     const welcomeMessage = `
-Hello ${fullName}, 👋
+  Hello ${fullName}, 👋
 
-Welcome to Pocket Buddy! 🎉
+  Welcome to Pocket Buddy! 🎉
 
-${roleMessage}
+  ${roleMessage}
 
-Here’s what you can do next:
-✅ Explore your dashboard  
-✅ Set up your profile  
-✅ Start creating and managing offers (if applicable)  
+  Here’s what you can do next:
+  ✅ Explore your dashboard  
+  ✅ Set up your profile  
+  ✅ Start creating and managing offers (if applicable)  
 
-If you have any questions, feel free to reach out to our support team.
+  If you have any questions, feel free to reach out to our support team.
 
-Happy exploring! 🚀  
+  Happy exploring! 🚀  
 
-Best regards,  
-The Pocket Buddy Team
-`;
+  Best regards,  
+  The Pocket Buddy Team
+  `;
 
     // ✅ Send Welcome Email
     await mailUtil.sendingMail(email, "Welcome to Pocket Buddy!", welcomeMessage);
@@ -147,10 +149,6 @@ const getAllUsers = async (req, res) => {
   }
 };
 
-
-
-
-
 // Get user by ID
 const getUserById = async (req, res) => {
   const foundUser = await userModel.findById(req.params.id);
@@ -162,12 +160,62 @@ const getUserById = async (req, res) => {
 
 // Delete user by ID
 const deleteUserById = async (req, res) => {
-  const deletedUser = await userModel.findByIdAndDelete(req.params.id);
-  res.json({
-    message: "User deleted successfully",
-    data: deletedUser,
-  });
+  try {
+    const { id } = req.params;
+
+    // Check if user exists
+    const user = await userModel.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Delete user
+    const deletedUser = await userModel.findByIdAndDelete(id);
+    
+    res.status(200).json({
+      message: "User deleted successfully",
+      data: deletedUser,
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 };
+
+// Update User Status (active, not active)
+const updateUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    console.log("Received request:", { id, status });
+
+    if (!id) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // ✅ Convert status to Boolean before saving
+    const newStatus = status === true || status === "Active";
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      id,
+      { status: newStatus }, // ✅ Ensure Boolean storage
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("✅ Updated User:", updatedUser);
+    res.status(200).json({ message: "Status updated successfully!", user: updatedUser });
+
+  } catch (error) {
+    console.error("❌ Error updating user status:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+  }
+};
+
 
 // Export all functions
 module.exports = {
@@ -177,4 +225,5 @@ module.exports = {
   deleteUserById,
   signup,
   loginUser,
+  updateUserStatus,
 };

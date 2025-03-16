@@ -5,7 +5,9 @@ const userController = require("../controllers/UserController");
 routes.post("/", userController.signup); // Register a new user
 routes.get("/all", userController.getAllUsers); // Get all users
 routes.get("/user/:id", userController.getUserById); // Get user by ID
-routes.delete("/user/:id", userController.deleteUserById); // Delete user by ID
+routes.delete("/delete/:id", userController.deleteUserById); // Delete user by ID
 routes.post("/login", userController.loginUser); // User login
+routes.put("/update-status/:id", userController.updateUserStatus);
+
 
 module.exports = routes;
