@@ -64,24 +64,24 @@ const signup = async (req, res) => {
 
     // Construct welcome message
     const welcomeMessage = `
-Hello ${fullName}, 👋
+  Hello ${fullName}, 👋
 
-Welcome to Pocket Buddy! 🎉
+  Welcome to Pocket Buddy! 🎉
 
-${roleMessage}
+  ${roleMessage}
 
-Here’s what you can do next:
-✅ Explore your dashboard  
-✅ Set up your profile  
-✅ Start creating and managing offers (if applicable)  
+  Here’s what you can do next:
+  ✅ Explore your dashboard  
+  ✅ Set up your profile  
+  ✅ Start creating and managing offers (if applicable)  
 
-If you have any questions, feel free to reach out to our support team.
+  If you have any questions, feel free to reach out to our support team.
 
-Happy exploring! 🚀  
+  Happy exploring! 🚀  
 
-Best regards,  
-The Pocket Buddy Team
-`;
+  Best regards,  
+  The Pocket Buddy Team
+  `;
 
     // Send welcome email
     await mailUtil.sendingMail(email, "Welcome to Pocket Buddy!", welcomeMessage);
@@ -122,11 +122,22 @@ const addUser = async (req, res) => {
 // Get all users
 const getAllUsers = async (req, res) => {
   const users = await userModel.find().populate("roleId");
+
+  // Ensure all users have a properly formatted name
+  const formattedUsers = users.map(user => ({
+    _id: user._id,
+    name: user.fullName || user.name || "N/A", // Use fullName if available
+    email: user.email,
+    role: user.roleId?.name || "N/A", // Ensure role is populated
+    status: user.status ? "Active" : "Inactive", // Convert Boolean to readable format
+  }));
+
   res.json({
     message: "Users fetched successfully",
-    data: users,
+    data: formattedUsers,
   });
 };
+
 
 // Get user by ID
 const getUserById = async (req, res) => {

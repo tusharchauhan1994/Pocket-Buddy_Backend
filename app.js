@@ -18,7 +18,7 @@ app.use(roleRoutes); // Mount role-related routes
 
 // user routes
 const userRoutes = require("./src/routes/UserRoutes");
-app.use(userRoutes); // Mount user-related routes
+app.use("/user",userRoutes); // Mount user-related routes
 
 // state routes
 const stateRoutes = require("./src/routes/StateRoutes");
