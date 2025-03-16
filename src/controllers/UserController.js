@@ -7,93 +7,88 @@ const signup = async (req, res) => {
   try {
     console.log("Received Request Body:", req.body);
 
-    const { firstName, lastName, email, password, roleId } = req.body; // Use roleId
+    const { firstName, lastName, email, password, roleId } = req.body;
 
+    // ✅ Validate Required Fields
     if (!firstName || !lastName || !email || !password || !roleId) {
       return res.status(400).json({ message: "All fields are required (firstName, lastName, email, password, roleId)" });
     }
 
+    // ✅ Check if Email is Already Registered
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
+    // ✅ Hash Password for Security
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    // 🔍 DEBUG: Log roleId
+    // ✅ Get the Role from the Database
     console.log("Role ID from request:", roleId);
-
-    // Get the role name from RoleModel using roleId
     const role = await roleModel.findById(roleId);
-
     if (!role) {
       console.error("Invalid roleId, no role found in database!");
       return res.status(400).json({ message: "Invalid roleId" });
     }
-
-    // 🔍 DEBUG: Log fetched role data
     console.log("Fetched Role from Database:", role);
 
-    // Ensure we have a role name
-    const roleName = role.name ? role.name.toLowerCase() : "user"; // Default to "user" if role.name is missing
+    // ✅ Format Name Properly
+    const fullName = `${firstName.trim()} ${lastName.trim()}`;
 
-    // Combine firstName and lastName
-    const fullName = `${firstName.trim()} ${lastName.trim()}`.trim();
-
+    // ✅ Create the New User in Database
     const newUser = await userModel.create({
       firstName,
       lastName,
-      fullName,
+      name: fullName,  // ✅ Store full name
       email,
       password: hashedPassword,
       roleId,
     });
 
     console.log("Newly Created User:", newUser);
-    console.log("User Role:", roleName); // Log correct role name
+    console.log("User Role:", role.name);
 
-    // Define a custom message based on user role
+    // ✅ Define Role-Specific Welcome Message
     let roleMessage = "";
-    if (roleName === "admin") {
+    if (role.name.toLowerCase() === "admin") {
       roleMessage = "You have been registered as an Admin. Manage users and settings.";
-    } else if (roleName === "restaurant") {
+    } else if (role.name.toLowerCase() === "restaurant") {
       roleMessage = "You have been registered as a Restaurant. Start adding your offers!";
     } else {
       roleMessage = "You have been registered as a User. Start exploring restaurants!";
     }
 
-    // Construct welcome message
+    // ✅ Construct Welcome Email
     const welcomeMessage = `
-  Hello ${fullName}, 👋
+Hello ${fullName}, 👋
 
-  Welcome to Pocket Buddy! 🎉
+Welcome to Pocket Buddy! 🎉
 
-  ${roleMessage}
+${roleMessage}
 
-  Here’s what you can do next:
-  ✅ Explore your dashboard  
-  ✅ Set up your profile  
-  ✅ Start creating and managing offers (if applicable)  
+Here’s what you can do next:
+✅ Explore your dashboard  
+✅ Set up your profile  
+✅ Start creating and managing offers (if applicable)  
 
-  If you have any questions, feel free to reach out to our support team.
+If you have any questions, feel free to reach out to our support team.
 
-  Happy exploring! 🚀  
+Happy exploring! 🚀  
 
-  Best regards,  
-  The Pocket Buddy Team
-  `;
+Best regards,  
+The Pocket Buddy Team
+`;
 
-    // Send welcome email
+    // ✅ Send Welcome Email
     await mailUtil.sendingMail(email, "Welcome to Pocket Buddy!", welcomeMessage);
 
+    // ✅ Return Success Response
     res.status(201).json({ message: "User registered and welcome email sent!", data: newUser });
   } catch (err) {
     console.error("Signup Error:", err);
     res.status(500).json({ message: "Signup error", error: err });
   }
 };
-
-
 
 
 const loginUser = async (req, res) => {
@@ -121,22 +116,39 @@ const addUser = async (req, res) => {
 
 // Get all users
 const getAllUsers = async (req, res) => {
-  const users = await userModel.find().populate("roleId");
+  try {
+    const users = await userModel.find().populate("roleId");
 
-  // Ensure all users have a properly formatted name
-  const formattedUsers = users.map(user => ({
-    _id: user._id,
-    name: user.fullName || user.name || "N/A", // Use fullName if available
-    email: user.email,
-    role: user.roleId?.name || "N/A", // Ensure role is populated
-    status: user.status ? "Active" : "Inactive", // Convert Boolean to readable format
-  }));
+    console.log("🔍 Raw Users from Database:", users); // Debugging
 
-  res.json({
-    message: "Users fetched successfully",
-    data: formattedUsers,
-  });
+    const formattedUsers = users.map(user => ({
+      _id: user._id,
+      name: (user.firstName && user.lastName) 
+        ? `${user.firstName} ${user.lastName}`.trim() 
+        : user.firstName 
+          ? user.firstName 
+          : user.lastName 
+            ? user.lastName 
+            : user.name 
+              ? user.name
+              : "No Name",  // ✅ Final fallback
+      email: user.email,
+      role: user.roleId?.name || "N/A",
+      status: user.status ? "Active" : "Inactive",
+    }));
+
+    console.log("✅ Formatted Users Sent to Frontend:", formattedUsers);
+
+    res.json({ message: "Users fetched successfully", data: formattedUsers });
+
+  } catch (error) {
+    console.error("❌ Error fetching users:", error);
+    res.status(500).json({ message: "Error fetching users", error });
+  }
 };
+
+
+
 
 
 // Get user by ID
