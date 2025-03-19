@@ -42,6 +42,13 @@ app.use("/foodType",foodTypeRoutes);
 const locationRoutes = require("./src/routes/LocationRoutes");
 app.use("/location",locationRoutes); //http://localhost:3000/location/add
 
+const Location = require("./src/models/LocationModel"); 
+console.log("📌 Checking Location Model:", Location);
+
+
+const adminRoutes = require("./src/routes/AdminRoutes"); // ✅ Add admin routes
+app.use("/admin", adminRoutes);
+
 
 // Connect to MongoDB database
 mongoose

@@ -3,6 +3,7 @@
 
 const mongoose = require("mongoose");
 const locationModel = require("../models/LocationModel");
+const User = require("../models/UserModel"); // ✅ Import UserModel
 const multer = require("multer");
 const path = require("path");
 const cloudinaryUtil = require("../utils/CloudanryUtil");
@@ -21,6 +22,43 @@ const upload = multer({
   storage: storage,
   //fileFilter:
 }).single("image");
+
+// All Restaurant Owners
+const getAllRestaurantOwners = async (req, res) => {
+  try {
+    console.log("🔍 Fetching only users who own restaurants...");
+
+    // Fetch only users who have at least one restaurant
+    const ownersWithRestaurants = await locationModel.distinct("userId"); // ✅ Get unique user IDs from restaurants
+    //console.log("📌 Found Owners With Restaurants:", ownersWithRestaurants);
+
+    const owners = await User.find({ _id: { $in: ownersWithRestaurants } }); // ✅ Fetch only those users
+    //console.log("📌 Owners Fetched:", owners.length);
+
+    //console.log("🔥 API Response:", res.data);
+
+    if (!owners.length) {
+      return res.status(404).json({ message: "No restaurant owners found" });
+    }
+
+    // Fetch each owner's restaurants
+    const ownersWithRestaurantData = await Promise.all(
+      owners.map(async (owner) => {
+        const restaurants = await locationModel.find({ userId: owner._id });
+        console.log(`📌 ${owner.firstName} has ${restaurants.length} restaurants`);
+        return { ...owner.toObject(), restaurants };
+      })
+    );
+
+    res.status(200).json({
+      message: "Restaurant owners retrieved successfully",
+      data: ownersWithRestaurantData,
+    });
+  } catch (error) {
+    console.error("❌ Error fetching restaurant owners:", error);
+    res.status(500).json({ message: "Failed to fetch restaurant owners." });
+  }
+};
 
 
 const getRestaurantById = async (req, res) => {
@@ -181,4 +219,4 @@ const getAllLocations = async (req, res) => {
   }
 };
 
-module.exports = { addLocation, getAllLocations, addLocationWithFile, getLocationByUserId, updateRestaurant, getRestaurantById, deleteRestaurant, };
+module.exports = { addLocation, getAllLocations, addLocationWithFile, getLocationByUserId, updateRestaurant, getRestaurantById, deleteRestaurant,getAllRestaurantOwners  };
