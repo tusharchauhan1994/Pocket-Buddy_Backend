@@ -30,7 +30,7 @@ const getAllRestaurantOwners = async (req, res) => {
 
     // Fetch only users who have at least one restaurant
     const ownersWithRestaurants = await locationModel.distinct("userId"); // ✅ Get unique user IDs from restaurants
-    //console.log("📌 Found Owners With Restaurants:", ownersWithRestaurants);
+    console.log("📌 Found Owners With Restaurants:", ownersWithRestaurants);
 
     const owners = await User.find({ _id: { $in: ownersWithRestaurants } }); // ✅ Fetch only those users
     //console.log("📌 Owners Fetched:", owners.length);
