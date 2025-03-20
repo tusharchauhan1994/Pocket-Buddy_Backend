@@ -11,6 +11,11 @@ app.use(cors()); // Enable CORS for cross-origin requests
 app.use(express.json()); // Parse incoming JSON requests
 
 
+// offer routes
+const offerRoutes = require("./src/routes/OfferRoutes");
+app.use("/offer", offerRoutes); // Mount offer-related routes
+
+
 
 // role routes
 const roleRoutes = require("./src/routes/RoleRoutes");
