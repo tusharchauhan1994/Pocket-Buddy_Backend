@@ -8,6 +8,7 @@ routes.get("/user/:id", userController.getUserById); // Get user by ID
 routes.delete("/delete/:id", userController.deleteUserById); // Delete user by ID
 routes.post("/login", userController.loginUser); // User login
 routes.put("/update-status/:id", userController.updateUserStatus);
-
+routes.post("/forgot-password",userController.forgotPassword);
+routes.post("/resetpassword",userController.resetpassword);
 
 module.exports = routes;

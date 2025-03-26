@@ -2,8 +2,10 @@ const userModel = require("../models/UserModel");
 const roleModel = require("../models/RoleModel"); // Import Role Model
 const bcrypt = require("bcrypt");
 const mailUtil = require("../utils/MailUtil");
+const jwt = require("jsonwebtoken");
+const secret = "secret";
 
-console.log("User Model:", userModel);
+//console.log("User Model:", userModel);
 
 const signup = async (req, res) => {
   try {
@@ -217,6 +219,69 @@ const updateUserStatus = async (req, res) => {
 };
 
 
+//Forgot Password link to mailbox
+const forgotPassword = async (req, res) => {
+  const email = req.body.email;
+  const foundUser = await userModel.findOne({ email: email });
+
+  if (foundUser) {
+    const obj = {
+      _id: foundUser._id,
+    }
+    const token = jwt.sign(foundUser.toObject(),secret);
+    console.log(token);
+    const url = `http://localhost:5173/reset-password/${token}`;
+    console.log(url);
+    const mailContent = `
+  <html>
+    <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+      <h2>Password Reset Request</h2>
+      <p>If you requested a password reset, click the button below:</p>
+      <a href="${url}" 
+         style="display: inline-block; padding: 10px 20px; font-size: 16px; 
+                color: white; background-color: #007BFF; text-decoration: none; 
+                border-radius: 5px; margin-top: 10px;">
+        Reset Password
+      </a>
+      <p>If you did not request this, please ignore this email.</p>
+      <p>Thanks, <br/> Pocket Buddy Team</p>
+    </body>
+  </html>
+`;
+
+    //email...
+    await mailUtil.sendingMail(foundUser.email, "reset password", mailContent);
+    res.json({
+      message: "reset password link sent to mail.",
+    });
+  } else {
+    res.json({
+      message: "user not found register first..",
+    });
+  }
+};
+
+
+//reset password
+const resetpassword = async (req, res) => {
+  const token = req.body.token; //decode --> email | id
+  const newPassword = req.body.password;
+
+  const userFromToken = jwt.verify(token, secret);
+  //object -->email,id..
+  //password encrypt...
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPasseord = bcrypt.hashSync(newPassword,salt);
+
+  const updatedUser = await userModel.findByIdAndUpdate(userFromToken._id, {
+    password: hashedPasseord,
+  });
+  res.json({
+    message: "password updated successfully..",
+  });
+};
+
+
 // Export all functions
 module.exports = {
   addUser,
@@ -226,4 +291,6 @@ module.exports = {
   signup,
   loginUser,
   updateUserStatus,
+  forgotPassword,
+  resetpassword,
 };

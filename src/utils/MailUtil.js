@@ -13,10 +13,11 @@ const sendingMail = async(to,subject,text)=>{
     from: 'imcatushar1994@gmail.com',
     to: to,
     subject: subject,
-    text: text
+    //text: text,
+    html: text,
   }
 
-  const mailResponse = await transporter.sendMail(mailOptions);
+  const  mailResponse = await transporter.sendMail(mailOptions);
   console.log(mailResponse);
   return mailResponse;
 }

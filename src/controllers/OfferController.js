@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+const LocationModel = require("../models/LocationModel"); // ✅ Import the location model
 const Offer = require("../models/OfferModel");
 const RedeemOffer = require("../models/RedeemOfferModel");
 const cloudinaryUtil = require("../utils/CloudanryUtil");
@@ -58,6 +59,33 @@ const addOffer = async (req, res) => {
   });
 };
 
+// 📌 Get Offer by ID
+const getOfferById = async (req, res) => {
+  try {
+    console.log("🔍 Request received for Offer ID:", req.params.id);
+    
+    // ✅ Populate `restaurant_ids` correctly
+    const offer = await Offer.findById(req.params.id).populate({
+      path: "restaurant_ids",
+      populate: { path: "cityId areaId stateId" }, // ✅ Ensure city, area, and state are included
+    });
+
+    if (!offer) {
+      console.log("❌ Offer not found in database");
+      return res.status(404).json({ message: "Offer not found" });
+    }
+
+    console.log("✅ Offer found:", offer);
+
+    // ✅ Now, `restaurants` will have full data
+    res.status(200).json({ data: offer });
+  } catch (err) {
+    console.error("❌ Error in getOfferById:", err.message);
+    res.status(500).json({ message: "Error fetching offer", error: err.message });
+  }
+};
+
+
 const deleteOffer = async (req, res) => {
   try {
     const { id } = req.params;
@@ -89,7 +117,6 @@ const updateOffer = async (req, res) => {
     res.status(500).json({ success: false, message: "Error updating offer" });
   }
 };
-
 
 // 📌 Get All Offers
 const getAllOffers = async (req, res) => {
@@ -167,4 +194,4 @@ const useOffer = async (req, res) => {
   }
 };
 
-module.exports = { addOffer, getAllOffers, getOffersByRestaurant, redeemOffer, updateRedeemStatus, getUserRedeems, useOffer,deleteOffer,updateOffer };
+module.exports = { addOffer, getAllOffers, getOffersByRestaurant, redeemOffer, updateRedeemStatus, getUserRedeems, useOffer,deleteOffer,updateOffer,getOfferById };

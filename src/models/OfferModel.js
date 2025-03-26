@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
+const Restaurant = require("./LocationModel"); // Ensure the model is registered
 
 const OfferSchema = new mongoose.Schema({
     title: String,
     description: String,
     offer_type: String,
     discount_value: Number,
-    restaurant_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" }],
+    restaurant_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: "Location" }],
     valid_from: Date,
     valid_to: Date,
     requires_approval: Boolean,

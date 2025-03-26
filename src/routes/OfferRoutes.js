@@ -4,6 +4,8 @@ const offerController = require("../controllers/OfferController");
 
 router.post("/add", offerController.addOffer); // Add Offer
 router.get("/", offerController.getAllOffers); // Get All Offers
+router.get("/:id", offerController.getOfferById); // Get Offer by ID
+
 router.get("/by-restaurant/:restaurantId", offerController.getOffersByRestaurant); // Get Offers by Restaurant
 
 router.post("/redeem", offerController.redeemOffer); // Redeem Offer Request
