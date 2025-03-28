@@ -1,3 +1,9 @@
+// for offer redeem
+require("./src/models/UserModel"); // ✅ Ensure User model is loaded
+require("./src/models/OfferModel"); // ✅ Ensure Offer model is loaded
+require("./src/models/RedeemOfferModel"); // ✅ Ensure RedeemOffer model is loaded
+
+
 // Import required modules
 const express = require("express"); // Express framework for building APIs
 const mongoose = require("mongoose"); // Mongoose for MongoDB connection and schema management
@@ -11,10 +17,15 @@ app.use(cors()); // Enable CORS for cross-origin requests
 app.use(express.json()); // Parse incoming JSON requests
 
 
+
+
 // offer routes
 const offerRoutes = require("./src/routes/OfferRoutes");
 app.use("/offer", offerRoutes); // Mount offer-related routes
 
+// Redeem Offer Routes
+const RedeemOfferRoutes = require('./src/routes/RedeemOfferRoutes');
+app.use('/redeem', RedeemOfferRoutes);
 
 
 // role routes
