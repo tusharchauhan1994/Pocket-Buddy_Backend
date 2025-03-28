@@ -13,6 +13,17 @@ exports.createRedemption = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
+    // 🔍 Check if a pending or approved redemption request already exists
+    const existingRequest = await RedeemOffer.findOne({
+      user_id,
+      offer_id,
+      status: { $in: ["Pending", "Approved"] }, // Prevent duplicate pending/approved requests
+    });
+
+    if (existingRequest) {
+      return res.status(400).json({ message: "You have already requested this offer. Please wait for approval." });
+    }
+
     // 🔍 Find the offer
     const offer = await Offer.findById(offer_id);
     if (!offer || !offer.restaurant_ids || offer.restaurant_ids.length === 0) {
@@ -22,20 +33,20 @@ exports.createRedemption = async (req, res) => {
     console.log("✅ Offer found:", offer);
 
     // 🔍 Get the first restaurant linked to this offer
-    const restaurant = await Location.findById(offer.restaurant_ids[0]); // ✅ Access the first restaurant
+    const restaurant = await Location.findById(offer.restaurant_ids[0]);
     if (!restaurant || !restaurant.userId) {
       console.log("🚨 No owner found for restaurant:", restaurant);
       return res.status(404).json({ message: "Restaurant owner not found." });
     }
 
     const owner_id = restaurant.userId;
-    console.log("✅ Owner ID:", owner_id); // 🛠 Debugging log
+    console.log("✅ Owner ID:", owner_id); // Debugging log
 
     // 🚀 Save to MongoDB
     const newRedemption = new RedeemOffer({
       user_id,
       offer_id,
-      restaurant_id: offer.restaurant_ids[0], // ✅ Store correct restaurant ID
+      restaurant_id: offer.restaurant_ids[0],
       owner_id,
       status: "Pending",
     });
@@ -84,8 +95,6 @@ exports.updateRedemptionStatus = async (req, res) => {
   }
 };
 
-
-
 // ✅ Get redemption requests for a user
 exports.getUserRedemptions = async (req, res) => {
   try {
@@ -110,7 +119,6 @@ exports.getOwnerRedemptions = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 
 // ✅ Get redemption request by ID
 exports.getRedemptionRequestById = async (req, res) => {
