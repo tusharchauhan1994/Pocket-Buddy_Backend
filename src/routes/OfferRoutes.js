@@ -2,17 +2,34 @@ const express = require("express");
 const router = express.Router();
 const offerController = require("../controllers/OfferController");
 
-router.post("/add", offerController.addOffer); // Add Offer
-router.get("/", offerController.getAllOffers); // Get All Offers
-router.get("/:id", offerController.getOfferById); // Get Offer by ID
+// Get All Offers (Corrected)
+router.get("/", offerController.getAllOffers); 
 
-router.get("/by-restaurant/:restaurantId", offerController.getOffersByRestaurant); // Get Offers by Restaurant
+// Add Offer
+router.post("/add", offerController.addOffer); 
 
-router.post("/redeem", offerController.redeemOffer); // Redeem Offer Request
-router.post("/redeem/update-status", offerController.updateRedeemStatus); // Approve/Reject Offer
-router.get("/redeem/user/:user_id", offerController.getUserRedeems); // Get User Redeemed Offers
-router.post("/redeem/use", offerController.useOffer); // Use Offer
+// Get Offer by ID
+router.get("/:id", offerController.getOfferById); 
+
+// Get Offers by Restaurant
+router.get("/by-restaurant/:restaurantId", offerController.getOffersByRestaurant); 
+
+// Redeem Offer Request
+router.post("/redeem", offerController.redeemOffer); 
+
+// Approve/Reject Offer
+router.post("/redeem/update-status", offerController.updateRedeemStatus); 
+
+// Get User Redeemed Offers
+router.get("/redeem/user/:user_id", offerController.getUserRedeems); 
+
+// Use Offer
+router.post("/redeem/use", offerController.useOffer); 
+
+// Delete Offer
 router.delete("/delete/:id", offerController.deleteOffer);
+
+// Update Offer
 router.put("/update/:id", offerController.updateOffer);
 
 module.exports = router;
