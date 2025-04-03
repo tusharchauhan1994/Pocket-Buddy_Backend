@@ -3,7 +3,6 @@ require("./src/models/UserModel"); // ✅ Ensure User model is loaded
 require("./src/models/OfferModel"); // ✅ Ensure Offer model is loaded
 require("./src/models/RedeemOfferModel"); // ✅ Ensure RedeemOffer model is loaded
 
-
 // Import required modules
 const express = require("express"); // Express framework for building APIs
 const mongoose = require("mongoose"); // Mongoose for MongoDB connection and schema management
@@ -17,6 +16,9 @@ app.use(cors()); // Enable CORS for cross-origin requests
 app.use(express.json()); // Parse incoming JSON requests
 
 
+const bodyParser = require("body-parser");
+app.use(bodyParser.json()); // ✅ This ensures JSON is parsed
+app.use(bodyParser.urlencoded({ extended: true })); // ✅ Handle URL-encoded data
 
 
 // offer routes

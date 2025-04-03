@@ -9,6 +9,7 @@ routes.delete("/delete/:id", userController.deleteUserById); // Delete user by I
 routes.post("/login", userController.loginUser); // User login
 routes.put("/update-status/:id", userController.updateUserStatus);
 routes.post("/forgot-password",userController.forgotPassword);
-routes.post("/resetpassword",userController.resetpassword);
+routes.post("/reset-password", userController.resetpassword);
+
 
 module.exports = routes;

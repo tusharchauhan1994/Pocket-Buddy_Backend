@@ -221,64 +221,60 @@ const updateUserStatus = async (req, res) => {
 
 //Forgot Password link to mailbox
 const forgotPassword = async (req, res) => {
-  const email = req.body.email;
-  const foundUser = await userModel.findOne({ email: email });
-
-  if (foundUser) {
-    const obj = {
-      _id: foundUser._id,
+  try {
+    const foundUser = await userModel.findOne({ email: req.body.email });
+    if (!foundUser) {
+      return res.status(404).json({ message: "User not found" });
     }
-    const token = jwt.sign(foundUser.toObject(),secret);
-    console.log(token);
-    const url = `http://localhost:5173/reset-password/${token}`;
-    console.log(url);
-    const mailContent = `
-  <html>
-    <body style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
-      <h2>Password Reset Request</h2>
-      <p>If you requested a password reset, click the button below:</p>
-      <a href="${url}" 
-         style="display: inline-block; padding: 10px 20px; font-size: 16px; 
-                color: white; background-color: #007BFF; text-decoration: none; 
-                border-radius: 5px; margin-top: 10px;">
-        Reset Password
-      </a>
-      <p>If you did not request this, please ignore this email.</p>
-      <p>Thanks, <br/> Pocket Buddy Team</p>
-    </body>
-  </html>
-`;
 
-    //email...
-    await mailUtil.sendingMail(foundUser.email, "reset password", mailContent);
-    res.json({
-      message: "reset password link sent to mail.",
-    });
-  } else {
-    res.json({
-      message: "user not found register first..",
-    });
+    const token = jwt.sign(foundUser.toObject(), secret);
+    const url = `http://localhost:5173/reset-password?token=${encodeURIComponent(token)}`;
+    
+    const mailContent = `
+      <div style="font-family: Arial, sans-serif;">
+        <h2>Password Reset</h2>
+        <p>Click the link below to reset your password:</p>
+        <a href="${url}">Reset Password</a>
+        <p>This link expires in 1 hour.</p>
+      </div>
+    `;
+
+    await mailUtil.sendingMail(foundUser.email, "Password Reset Request", mailContent);
+    res.json({ message: "Reset link sent to email" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-
 //reset password
 const resetpassword = async (req, res) => {
-  const token = req.body.token; //decode --> email | id
-  const newPassword = req.body.password;
+  try {
+    const { token, password } = req.body;
+    
+    if (!token || !password) {
+      return res.status(400).json({ message: "Token and password are required" });
+    }
 
-  const userFromToken = jwt.verify(token, secret);
-  //object -->email,id..
-  //password encrypt...
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPasseord = bcrypt.hashSync(newPassword,salt);
+    const decoded = jwt.verify(token, secret);
+    const user = await userModel.findById(decoded._id);
+    
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-  const updatedUser = await userModel.findByIdAndUpdate(userFromToken._id, {
-    password: hashedPasseord,
-  });
-  res.json({
-    message: "password updated successfully..",
-  });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error(error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ message: "Reset link has expired" });
+    }
+    res.status(500).json({ message: "Error resetting password" });
+  }
 };
 
 
