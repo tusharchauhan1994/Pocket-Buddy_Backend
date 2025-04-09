@@ -1,3 +1,7 @@
+
+require("dotenv").config();
+
+
 // for offer redeem
 require("./src/models/UserModel"); // ✅ Ensure User model is loaded
 require("./src/models/OfferModel"); // ✅ Ensure Offer model is loaded
@@ -66,6 +70,15 @@ console.log("📌 Checking Location Model:", Location);
 
 const adminRoutes = require("./src/routes/AdminRoutes"); // ✅ Add admin routes
 app.use("/admin", adminRoutes);
+
+
+//Payment
+const paymentRoutes = require("./src/routes/PaymentRoutes")
+app.use("/payment", paymentRoutes)
+
+//subscription details
+const subscriptionRoutes = require("./src/routes/SubscriptionRoutes");
+app.use("/subscription", subscriptionRoutes);
 
 
 // Connect to MongoDB database
