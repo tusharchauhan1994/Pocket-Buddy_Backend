@@ -72,6 +72,11 @@ const adminRoutes = require("./src/routes/AdminRoutes"); // ✅ Add admin routes
 app.use("/admin", adminRoutes);
 
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ error: err.message });
+});
 //Payment
 const paymentRoutes = require("./src/routes/PaymentRoutes")
 app.use("/payment", paymentRoutes)

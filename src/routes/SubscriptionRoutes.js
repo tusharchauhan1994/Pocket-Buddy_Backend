@@ -1,7 +1,8 @@
-const router = require("express").Router();
-const controller = require("../controllers/SubscriptionController");
+const express = require("express");
+const router = express.Router();
+const { saveSubscription, getAllSubscribers } = require("../controllers/SubscriptionController");
 
-router.post("/save", controller.saveSubscription);
-router.get("/all", controller.getAllSubscribers); // For admin
+router.post("/save", saveSubscription);
+router.get("/all", getAllSubscribers);
 
 module.exports = router;
