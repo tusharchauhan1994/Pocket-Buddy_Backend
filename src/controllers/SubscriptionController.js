@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("../models/UserModel");
 const Subscription = require("../models/SubscriptionModel");
 
 const saveSubscription = async (req, res) => {
@@ -43,10 +44,16 @@ const saveSubscription = async (req, res) => {
 
 const getAllSubscribers = async (req, res) => {
   try {
-    const subscribers = await Subscription.find().populate("userId", "name email");
+    const subscribers = await Subscription.find().populate({
+      path: "userId",
+      select: "name email",
+      model: "users", // 👈 matches your model name
+    });
+    
     res.status(200).json(subscribers);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch subscribers" });
+    console.error("🔴 Failed to fetch subscribers:", err);
+    res.status(500).json({ error: "Failed to fetch subscribers", details: err.message });
   }
 };
 
@@ -66,7 +73,6 @@ const getUserSubscription = async (req, res) => {
   }
 };
 
-
 const getSubscriptionByUser = async (req, res) => {
   const { userId } = req.params;
 
@@ -84,10 +90,25 @@ const getSubscriptionByUser = async (req, res) => {
   }
 };
 
+const deleteSubscriptionById = async (req, res) => {
+  try {
+    const subscription = await Subscription.findByIdAndDelete(req.params.id);
+    if (!subscription) {
+      return res.status(404).json({ error: "Subscription not found" });
+    }
+    res.status(200).json({ message: "Subscription deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting subscription:", error);
+    res.status(500).json({ error: "Failed to delete subscription" });
+  }
+};
+
+
 
 module.exports = {
   saveSubscription,
   getAllSubscribers,
   getUserSubscription,
-  getSubscriptionByUser
+  getSubscriptionByUser,
+  deleteSubscriptionById,
 };
