@@ -153,7 +153,7 @@ const getAllUsers = async (req, res) => {
 
 // Get user by ID
 const getUserById = async (req, res) => {
-  const foundUser = await userModel.findById(req.params.id);
+  const foundUser = await userModel.findById(req.params.id).populate('roleId');
   res.json({
     message: "User fetched successfully",
     data: foundUser,
