@@ -17,4 +17,14 @@ const OfferSchema = new mongoose.Schema({
     payment_required: { type: Boolean, default: false },
 });
 
+// Add this simple date checker
+OfferSchema.pre('save', function(next) {
+    const now = new Date();
+    if (this.valid_to < now) {
+        this.status = "Inactive";
+    }
+    next();
+});
+
+
 module.exports = mongoose.model("Offer", OfferSchema);

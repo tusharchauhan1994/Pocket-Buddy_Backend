@@ -122,10 +122,25 @@ const updateOffer = async (req, res) => {
 // 📌 Get All Offers
 const getAllOffers = async (req, res) => {
   try {
+    const now = new Date();
+    
+    // Automatically update expired offers
+    await Offer.updateMany(
+      { valid_to: { $lt: now }, status: "Active" },
+      { $set: { status: "Inactive" } }
+    );
+
+    // Return all offers (frontend will filter them)
     const offers = await Offer.find().populate("restaurant_ids", "name");
+    
     res.status(200).json({ success: true, offers });
+    
   } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: "Server error", 
+      error: error.message 
+    });
   }
 };
 
